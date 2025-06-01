@@ -10,6 +10,7 @@ const customerSchema = new mongoose.Schema({
   totalSpend: { type: Number, default: 0 },
   visits: { type: Number, default: 0 },
   lastActive: { type: Date },
+  orderCount : { type:Number , default:0 , min:0  }  , 
   createdAt: { type: Date, default: Date.now }
 });
 

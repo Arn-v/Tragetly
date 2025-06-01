@@ -1,5 +1,6 @@
 
 
+const Customer = require('../models/Customer');
 const Order = require('../models/Order');
 
 
@@ -9,6 +10,17 @@ exports.createOrder = async (req, res) => {
   try {
     const order = new Order(req.body);
     await order.save();
+
+    // update customer totalSpend
+    const customer = await Customer.findById(req.body.customer) ; 
+
+    if(customer){
+      customer.totalSpend += req.body.amount ; 
+      customer.orderCount ++ ; 
+      await customer.save() ; 
+      console.log(customer); 
+
+    }
     res.status(201).json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });
