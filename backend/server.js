@@ -41,7 +41,7 @@ app.use('/api/delivery', isAuthenticated , require('./routes/deliveryRoutes'));
 
 
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`\n\n Server running on port ${PORT} \nhttp://localhost:${PORT} \n\n` ));
 
 
 const connectDB = require('./config/DBconnect');

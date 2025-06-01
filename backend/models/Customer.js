@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
 const customerSchema = new mongoose.Schema({
-  customerId: { type: String, unique: true }, // External reference ID
+  // customerId: { type: String, unique: true }, // External reference ID 
   name: { type: String, required: true },
   email: { type: String },
   phone: { type: String },
@@ -13,11 +13,11 @@ const customerSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-customerSchema.pre('save', function(next) {
-  if (!this.customerId) {
-    this.customerId = uuidv4();
-  }
-  next();
-});
+// customerSchema.pre('save', function(next) {
+//   if (!this.customerId) {
+//     this.customerId = uuidv4();
+//   }
+//   next();
+// });
 
 module.exports = mongoose.model('Customer', customerSchema);

@@ -72,6 +72,7 @@ exports.createSegment = async (req, res) => {
       return res.status(200).json({ audienceSize: customers.length, generatedQuery: finalSegmentRules });
     }
 
+
     const campaign = await Campaign.create({
       name,
       createdBy: req.user._id,

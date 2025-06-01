@@ -1,10 +1,11 @@
 const Customer = require('../models/Customer');
+const { v4: uuidv4 } = require('uuid');
 
 exports.createCustomer = async (req, res) => {
   try {
     const customer = new Customer(req.body);
     await customer.save();
-    res.status(201).json(customer);
+    res.status(201).json({message:"Customer created successfully", customer});
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -31,8 +32,19 @@ exports.getCustomerById = async (req, res) => {
 
 exports.bulkUploadCustomers = async (req, res) => {
   try {
-    const inserted = await Customer.insertMany(req.body);
+    
+    // const customers = req.body.map(c => {
+    //   if (!c.customerId) {
+    //     c.customerId = uuidv4();
+    //   }
+    //   return c;
+    // });
+
+    const inserted = await Customer.insertMany(req.body) ; 
+    // const inserted = await Customer.insertMany(req.body);
+
     res.status(201).json({ count: inserted.length, data: inserted });
+
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

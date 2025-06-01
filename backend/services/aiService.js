@@ -24,7 +24,7 @@ async function parseNaturalLangToQuery(prompt)
             }
         )
 
-        const message = chat.data.choices[0].message.content;
+        const message = chat.data.choices[0].message.content ;
         console.log("LLM response:", message);
 
         const query = JSON.parse(message);
