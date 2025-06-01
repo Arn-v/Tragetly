@@ -45,7 +45,7 @@ const validateCampaign = [
 
 
 
-
+// segmentization of audience & creating campaign
 exports.createSegment = async (req, res) => {
   try {
     const { name, segmentRules, naturalPrompt, messageTemplate } = req.body;
@@ -54,7 +54,8 @@ exports.createSegment = async (req, res) => {
 
     // If user provided a prompt instead of raw rules
     if (!segmentRules && naturalPrompt) {
-      finalSegmentRules = await parseNaturalLanguageToQuery(naturalPrompt);
+      finalSegmentRules = await parseNaturalLanguageToQuery(naturalPrompt) ;
+      console.log(finalSegmentRules);
     }
 
     if (!finalSegmentRules || Object.keys(finalSegmentRules).length === 0) {
@@ -71,7 +72,6 @@ exports.createSegment = async (req, res) => {
     if (req.query.preview === 'true') {
       return res.status(200).json({ audienceSize: customers.length, generatedQuery: finalSegmentRules });
     }
-
 
     const campaign = await Campaign.create({
       name,
@@ -103,6 +103,7 @@ exports.triggerCampaign = async (req, res) => {
     if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
 
     const customers = await Customer.find(campaign.segmentRules);
+
     const logs = customers.map(customer => {
       const message = generateMessage(campaign.messageTemplate, { name: customer.name });
       return {

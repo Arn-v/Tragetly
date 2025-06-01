@@ -11,14 +11,43 @@ if (!groqKey) {
 
 const groq = new Groq( { apiKey:groqKey  , baseURL: "https://api.groq.com/openai/v1"}) ;
 
+//system prompt for LLM to give it context
+const systemPrompt = `
+You are an assistant that converts user segmentation descriptions into MongoDB find() queries.
 
-async function parseNaturalLangToQuery(prompt)
+Here’s the customer data schema:
+- name: String
+- email: String
+- phone: String
+- gender: Enum ('male', 'female', 'other')
+- totalSpend: Number
+- visits: Number
+- lastActive: Date
+- orderCount: Number
+- createdAt: Date
+
+Your task:
+- Generate a strict JSON object representing the MongoDB query for the customer collection.
+- Use MongoDB’s comparison operators ($gt, $lt, $eq, $gte, $lte, $in, $ne) as needed.
+- Match fields and data types exactly from the schema.
+- The JSON should be directly usable in Mongoose’s Customer.find({ ... }) query.
+- Do not include explanations, markdown, or any extra text — only output the JSON object.
+
+Examples:
+- If the prompt says: "Customers who spent more than 5000 and have visited more than 3 times", generate:
+  {
+    "totalSpend": { "$gt": 5000 },
+    "visits": { "$gt": 3 }
+  }`
+
+
+async function parseNaturalLangToQuery( prompt )
 {
      try{
         const chat = await groq.chat.completions.create(
             {
                 model:"llama-3.1-8b-instant" , 
-                messages : [  {  role: 'system', content: `You are an assistant that converts user segmentation descriptions into MongoDB query objects. Only return a JSON object compatible with MongoDB's find() query.`},
+                messages : [  {  role: 'system', content: systemPrompt },
                               { role: 'user', content: `Convert this to MongoDB query: ${prompt}`}  
                             ]
             }
