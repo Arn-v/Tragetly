@@ -1,7 +1,7 @@
 // vendorSimulator.js
 const axios = require('axios');
 const mongoose = require('mongoose');
-const CommunicationLog = require('./models/CommunicationLog');
+const CommunicationLog = require('../models/CommunicationLog');
 
 mongoose.connect('mongodb+srv://arnv15:sElbdfvRYFHtgzpM@targetly-crm-db.za4rjfz.mongodb.net/');
 

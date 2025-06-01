@@ -36,7 +36,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/customers', isAuthenticated ,  require('./routes/customerRoutes'));
 app.use('/api/orders', isAuthenticated , require('./routes/orderRoutes'));
 app.use('/api/campaigns', isAuthenticated ,require('./routes/campaignRoutes'));
-app.use('/api/delivery', isAuthenticated , require('./routes/deliveryRoutes')); 
+app.use('/api/delivery',  require('./routes/deliveryRoutes'));  //removed autN to make vendor simulator aceess my delivery apis
 
 
 

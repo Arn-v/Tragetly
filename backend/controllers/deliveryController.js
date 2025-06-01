@@ -17,6 +17,7 @@ exports.receiveDeliveryReceipt = async (req, res) => {
       deliveryTimestamp: new Date()
     });
 
+
     res.status(200).json({ message: 'Delivery status updated' });
   } catch (err) {
     console.error(err);
