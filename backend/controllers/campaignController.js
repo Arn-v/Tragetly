@@ -30,6 +30,8 @@ const { body, validationResult } = require('express-validator') ;
 
 // Middleware for validation
 const validateCampaign = [
+  body('segmentRules').optional().isObject(),
+  body('naturalPrompt').optional().isString() ,
   body('name').notEmpty().withMessage('Name is required'),
   (req, res, next) => {
     const errors = validationResult(req);

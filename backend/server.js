@@ -38,7 +38,14 @@ app.use('/api/orders', isAuthenticated , require('./routes/orderRoutes'));
 app.use('/api/campaigns', isAuthenticated ,require('./routes/campaignRoutes'));
 app.use('/api/delivery',  require('./routes/deliveryRoutes'));  //removed autN to make vendor simulator aceess my delivery apis
 
-
+//adding error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
 
 
 app.listen(PORT, () => console.log(`\n\n Server running on port ${PORT} \nhttp://localhost:${PORT} \n\n` ));
