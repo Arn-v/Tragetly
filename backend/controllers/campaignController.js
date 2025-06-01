@@ -1,7 +1,7 @@
 const Campaign = require('../models/Campaign');
 const Customer = require('../models/Customer');
 const CommunicationLog = require('../models/CommunicationLog');
-const { generateMessage } = require('../utlis/messageGenerator'); 
+const { generateMessage } = require('../utils/messageGenerator'); 
 const { parseNaturalLanguageToQuery , generateMessageSuggestion } = require('../services/aiService')
 const { body, validationResult } = require('express-validator') ;
 
@@ -115,6 +115,7 @@ exports.triggerCampaign = async (req , res) => {
 
     campaign.messageTemplate = messageTemplate.trim() ; 
     await campaign.save();
+
 
 
     const customers = await Customer.find(campaign.segmentRules);
