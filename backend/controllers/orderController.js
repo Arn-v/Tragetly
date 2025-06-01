@@ -30,7 +30,8 @@ exports.getAllOrders = async (req, res) => {
 
 exports.getOrdersByCustomer = async (req, res) => {
   try {
-    const orders = await Order.find({ customer: req.params.customerId });
+    const orders = await Order.find({ customer: req.params.customerId }).populate('customer') ;
+    // console.log(orders);
     res.status(200).json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });
