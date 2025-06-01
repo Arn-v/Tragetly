@@ -2,8 +2,8 @@ const Campaign = require('../models/Campaign');
 const Customer = require('../models/Customer');
 const CommunicationLog = require('../models/CommunicationLog');
 const { generateMessage } = require('../utlis/messageGenerator'); 
-const { parseNaturalLanguageToQuery } = require('../services/aiService')
-const { body, validationResult } = require('express-validator');
+const { parseNaturalLanguageToQuery , generateMessageSuggestion } = require('../services/aiService')
+const { body, validationResult } = require('express-validator') ;
 
 // exports.createSegment = async (req, res) => {
 //   try {
@@ -31,7 +31,6 @@ const { body, validationResult } = require('express-validator');
 // Middleware for validation
 const validateCampaign = [
   body('name').notEmpty().withMessage('Name is required'),
-  body('messageTemplate').notEmpty().withMessage('Message template is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -48,18 +47,24 @@ const validateCampaign = [
 // segmentization of audience & creating campaign
 exports.createSegment = async (req, res) => {
   try {
-    const { name, segmentRules, naturalPrompt, messageTemplate } = req.body;
+    const { name, segmentRules, naturalPrompt  } = req.body;
 
     let finalSegmentRules = segmentRules;
+    console.log(finalSegmentRules) ; 
+    console.log(naturalPrompt) ; 
 
     // If user provided a prompt instead of raw rules
     if (!segmentRules && naturalPrompt) {
+      console.log("Calling LLM") ; 
       finalSegmentRules = await parseNaturalLanguageToQuery(naturalPrompt) ;
-      console.log(finalSegmentRules);
+      console.log("Segment Rule created from natural language") ; 
+      // console.log(finalSegmentRules);
     }
 
-    if (!finalSegmentRules || Object.keys(finalSegmentRules).length === 0) {
-      return res.status(400).json({ error: 'Failed to parse natural language prompt. Please try again with a different description.' });
+    if (! finalSegmentRules || Object.keys(finalSegmentRules).length === 0) {
+      // console.log("didnt find a valid db query ")
+      return res.status(400).json({ error: 'Failed to parse natural language prompt. Please try again with a different description.' 
+       });
     }
 
     const customers = await Customer.find(finalSegmentRules);
@@ -77,7 +82,6 @@ exports.createSegment = async (req, res) => {
       name,
       createdBy: req.user._id,
       segmentRules: finalSegmentRules,
-      messageTemplate,
       audienceSize: customers.length,
       status: 'pending'
     });
@@ -94,13 +98,24 @@ exports.createSegment = async (req, res) => {
 };
 
 
-
-exports.triggerCampaign = async (req, res) => {
+//Launching the campaign for the audience segment with a personalized message 
+exports.triggerCampaign = async (req , res) => {
   
   try {
-    const campaign = await Campaign.findById(req.params.id);
 
+    const {messageTemplate} = req.body ; 
+
+    if (!messageTemplate || messageTemplate.trim() === '') {
+      return res.status(400).json({ error: 'Message template is required.' });
+    }
+
+
+    const campaign = await Campaign.findById(req.params.id);
     if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
+
+    campaign.messageTemplate = messageTemplate.trim() ; 
+    await campaign.save();
+
 
     const customers = await Customer.find(campaign.segmentRules);
 
@@ -110,21 +125,28 @@ exports.triggerCampaign = async (req, res) => {
         campaign: campaign._id,
         customer: customer._id,
         message,
-        status: 'SENT', // Simulated, you can randomize
+        status: 'PENDING', // intially pending 
         deliveryTimestamp: new Date()
       };
     });
 
     await CommunicationLog.insertMany(logs);
-    campaign.status = 'completed';
-    campaign.completedAt = new Date();
+
+    campaign.status = 'in-progress'; // Set status to in-progress
+    campaign.startedAt = new Date();
     await campaign.save();
 
-    res.status(200).json({ campaign, logsCreated: logs.length });
+
+    res.status(200).json({
+       campaign , 
+       logsCreated: logs.length , 
+       message: 'Campaign triggered. Delivery receipts will update status.' 
+      });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
@@ -165,6 +187,23 @@ exports.getCampaignLogs = async (req, res) => {
     res.status(200).json(logs);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+exports.getAiMessageSuggestion = async (req, res) => {
+  try {
+    const campaign = await Campaign.findById(req.params.id);
+    if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
+
+    // Call AI service with campaign's segment rules
+    const suggestion = await generateMessageSuggestion(campaign.segmentRules);
+
+    res.status(200).json({ suggestedMessage: suggestion });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to generate AI message suggestion.' });
   }
 };
 
