@@ -63,7 +63,7 @@ const CampaignBuilder = () => {
   // Error states
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://tragetly.onrender.com/api';
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://tragetly.onrender.com/api';
 
   const steps = [
     { number: 1, title: "Campaign Details", description: "Basic campaign information" },
