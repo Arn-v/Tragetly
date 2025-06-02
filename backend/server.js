@@ -31,6 +31,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Add this middleware before your other middleware
+app.use((req, res, next) => {
+  if (req.header('x-forwarded-proto') !== 'https') {
+    res.redirect(`https://${req.header('host')}${req.url}`);
+  } else {
+    next();
+  }
+});
+
 // Route Mounting 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/customers', isAuthenticated ,  require('./routes/customerRoutes'));
