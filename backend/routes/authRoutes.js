@@ -9,7 +9,7 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 // Google Callback
 router.get('/google/callback', passport.authenticate('google', {
   failureRedirect: '/',
-  successRedirect: 'https://neuravolt.vercel.app/'
+  successRedirect: 'http://localhost:8080/dashboard'
 }));
 
 // Get Logged-in User

@@ -26,7 +26,10 @@ const LandingPage = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await loginWithGoogle();
+        window.location.href = "https://tragetly.onrender.com/api/auth/google";
+        await loginWithGoogle();
+ 
+      
       toast({
         title: "Welcome to Targetly!",
         description: "You have successfully logged in with Google.",
